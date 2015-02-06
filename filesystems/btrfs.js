@@ -51,8 +51,8 @@ BTRFS.prototype.create_snapshot = function(fn){
     });
 }
 
-BTRFS.prototype.restore_snapshot = function(temporary_location){
-    child_process.exec(["btrfs receive -f", temporary_location, self.volume_location].join(" "), function(err, stdout, stderr){
+BTRFS.prototype.restore_snapshot = function(temporary_location, fn){
+    child_process.exec(["btrfs receive -f", temporary_location, this.volume_location].join(" "), function(err, stdout, stderr){
         return fn(err);
     });
 }
@@ -64,7 +64,7 @@ BTRFS.prototype.send_snapshot = function(host){
         if(_.isNull(err)){
             self.legiond.send("codexd.snapshot", {
                 options: self.options,
-                snapshot: snapshot.toJSON()
+                data: snapshot.toJSON()
             }, host);
         }
     });

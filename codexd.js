@@ -17,12 +17,12 @@ function CodexD(legiond){
     this.legiond.join("codexd.snapshot");
 
     this.legiond.on("codexd.snapshot", function(snapshot){
-        self.add_volume(options, function(err, volume){
+        self.add_volume(snapshot.options, function(err, volume){
             if(err)
                 throw err;
             else{
                 var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
-                fs.writeFile(temporary_location, "binary", function(err){
+                fs.writeFile(temporary_location, snapshot.data, "binary", function(err){
                     volume.restore_snapshot(temporary_location, function(err){
                         if(err)
                             throw err;
