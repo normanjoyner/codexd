@@ -13,24 +13,6 @@ function CodexD(legiond){
         var filesystem_name = filesystem.split(".")[0];
         self.filesystems[filesystem_name] = require([__dirname, "filesystems", filesystem].join("/"));
     });
-
-    this.legiond.join("codexd.snapshot");
-
-    this.legiond.on("codexd.snapshot", function(snapshot){
-        self.add_volume(snapshot.options, function(err, volume){
-            if(err)
-                throw err;
-            else{
-                var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
-                fs.writeFile(temporary_location, new Buffer(snapshot.data), "binary", function(err){
-                    volume.restore_snapshot(temporary_location, function(err){
-                        if(err)
-                            throw err;
-                    });
-                });
-            }
-        });
-    });
 }
 
 CodexD.prototype.add_volume = function(options, fn){
@@ -45,10 +27,50 @@ CodexD.prototype.add_volume = function(options, fn){
         this.volumes[options.name].initialize(options, function(err){
             if(err)
                 return fn(err);
-            else
+            else{
+                var event_name = ["codexd", "request_snapshot", options.name].join(".");
+                self.legiond.join(event_name);
+
+                self.legiond.on(event_name, function(host){
+                    self.volumes[options.name].send_snapshot(host);
+                });
+
                 return fn(null, self.volumes[options.name]);
+            }
         });
     }
+}
+
+CodexD.prototype.get_snapshot = function(host, name, fn){
+    var event_name = ["codexd", "receive_snapshot", name].join(".");
+    this.legiond.join(event_name);
+
+    this.legiond.on(event_name, function(snapshot){
+        this.legiond.leave(event_name);
+
+        if(snapshot.checksum == utils.get_checksum(snapshot.data)){
+            self.add_volume(snapshot.options, function(err, volume){
+                if(err)
+                    return fn(err);
+                else{
+                    var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
+                    fs.writeFile(temporary_location, new Buffer(snapshot.data), "binary", function(err){
+                        volume.restore_snapshot(temporary_location, function(err){
+                            if(err)
+                                return fn(err);
+                            else
+                                return fn();
+                        });
+                    });
+                }
+            });
+        }
+        else
+            return fn(new Error("Snapshot checksum mismatch!"));
+    });
+
+
+    this.legiond.send(["codexd", "get_snapshot", name].join("."), this.legiond.get_attributes(), host);
 }
 
 CodexD.prototype.remove_volume = function(name){}

@@ -62,9 +62,12 @@ BTRFS.prototype.send_snapshot = function(host){
 
     fs.readFile(this.temporary_location, function(err, snapshot){
         if(_.isNull(err)){
-            self.legiond.send("codexd.snapshot", {
+            var data = snapshot.toJSON();
+
+            self.legiond.send(["codexd", "receive_snapshot", self.name].join("."), {
                 options: self.options,
-                data: snapshot.toJSON()
+                checksum: utils.get_checksum(data),
+                data: data
             }, host);
         }
     });
