@@ -1,6 +1,7 @@
 var child_process = require("child_process");
 var fs = require("fs");
 var mkdirp = require("mkdirp");
+var _ = require("lodash");
 
 function BTRFS(legiond){
     this.legiond = legiond;
