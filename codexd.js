@@ -70,10 +70,13 @@ CodexD.prototype.get_snapshot = function(host, name, fn){
     });
 
 
-    this.legiond.send(["codexd", "get_snapshot", name].join("."), this.legiond.get_attributes(), host);
+    this.legiond.send(["codexd", "request_snapshot", name].join("."), this.legiond.get_attributes(), host);
 }
 
-CodexD.prototype.remove_volume = function(name){}
+CodexD.prototype.remove_volume = function(name){
+    var event_name = ["codexd", "request_snapshot", name].join(".");
+    this.legiond.leave(event_name);
+}
 
 CodexD.prototype.get_volumes = function(){
     return this.volumes;
