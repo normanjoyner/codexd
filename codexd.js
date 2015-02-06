@@ -13,6 +13,22 @@ function CodexD(legiond){
         var filesystem_name = filesystem.split(".")[0];
         self.filesystems[filesystem_name] = require([__dirname, "filesystems", filesystem].join("/"));
     });
+
+    this.legiond.on("codexd.snapshot", function(snapshot){
+        self.add_volume(options, function(err, volume){
+            if(err)
+                throw err;
+            else{
+                var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
+                fs.writeFile(temporary_location, "binary", function(err){
+                    volume.restore_snapshot(temporary_location, function(err){
+                        if(err)
+                            throw err;
+                    });
+                });
+            }
+        });
+    });
 }
 
 CodexD.prototype.add_volume = function(options, fn){

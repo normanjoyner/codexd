@@ -9,6 +9,7 @@ function BTRFS(legiond){
 BTRFS.prototype.initialize = function(options, fn){
     var self = this;
 
+    this.options = options;
     this.name = options.name;
     this.mount_point = options.mount_point;
     this.volume_location = [this.mount_point, this.name, "data"].join("/");
@@ -49,12 +50,19 @@ BTRFS.prototype.create_snapshot = function(fn){
     });
 }
 
-BTRFS.prototype.send_snapshot = function(){
+BTRFS.prototype.restore_snapshot = function(temporary_location){
+    child_process.exec(["btrfs receive -f", temporary_location, self.volume_location].join(" "), function(err, stdout, stderr){
+        return fn(err);
+    });
+}
+
+BTRFS.prototype.send_snapshot = function(host){
     var self = this;
 
     fs.readFile(this.temporary_location, function(err, snapshot){
         if(_.isNull(err)){
             self.legiond.send("codexd.snapshot", {
+                options: self.options,
                 snapshot: snapshot.toJSON()
             }, host);
         }
