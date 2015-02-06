@@ -22,7 +22,7 @@ function CodexD(legiond){
                 throw err;
             else{
                 var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
-                fs.writeFile(temporary_location, snapshot.data, "binary", function(err){
+                fs.writeFile(temporary_location, new Buffer(snapshot.data), "binary", function(err){
                     volume.restore_snapshot(temporary_location, function(err){
                         if(err)
                             throw err;
