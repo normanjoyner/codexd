@@ -14,6 +14,8 @@ function CodexD(legiond){
         self.filesystems[filesystem_name] = require([__dirname, "filesystems", filesystem].join("/"));
     });
 
+    this.legiond.join("codexd.snapshot");
+
     this.legiond.on("codexd.snapshot", function(snapshot){
         self.add_volume(options, function(err, volume){
             if(err)
