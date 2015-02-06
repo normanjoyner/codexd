@@ -1,0 +1,33 @@
+{
+  "name": "codexd",
+  "version": "0.0.0",
+  "description": "Filesystem snapshotting and replication built atop LegionD",
+  "main": "application.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/growbrosops/codexd.git"
+  },
+  "keywords": [
+    "codex",
+    "codexd",
+    "filesystem",
+    "snapshot",
+    "replication",
+    "fs",
+    "btrfs",
+    "legiond"
+  ],
+  "author": "Norman Joyner <norman.joyner@gmail.com>",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/growbrosops/codexd/issues"
+  },
+  "homepage": "https://github.com/growbrosops/codexd",
+  "dependencies": {
+    "lodash": "^3.1.0",
+    "mkdirp": "^0.5.0"
+  }
+}
