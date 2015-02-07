@@ -14,22 +14,21 @@ BTRFS.prototype.initialize = function(options, fn){
     this.name = options.name;
     this.mount_point = options.mount_point;
     this.volume_location = [this.mount_point, this.name, "data"].join("/");
-    this.snapshots_location = [this.mount_point, this.name, "snapshots"].join("/");
+    this.snapshots_location = [this.snapshot_location, this.name].join("/");
     this.temporary_location = ["", "tmp", "codexd"].join("/");
 
-    mkdirp(this.snapshots_location, function(err){
-        if(err)
-            return fn(err);
+    mkdirp(this.snapshots_location, fn);
+}
 
-        fs.exists(self.volume_location, function(exists){
-            if(!exists){
-                child_process.exec(["btrfs subvolume create", self.volume_location].join(" "), function(err, stdout, stderr){
-                    return fn(err);
-                });
-            }
-            else
-                return fn();
-        });
+BTRFS.prototype.create_volume = function(fn){
+    fs.exists(self.volume_location, function(exists){
+        if(!exists){
+            child_process.exec(["btrfs subvolume create", self.volume_location].join(" "), function(err, stdout, stderr){
+                return fn(err);
+            });
+        }
+        else
+            return fn();
     });
 }
 

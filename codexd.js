@@ -35,7 +35,13 @@ CodexD.prototype.add_volume = function(options, fn){
                     self.volumes[options.name].send_snapshot(host);
                 });
 
-                return fn(null, self.volumes[options.name]);
+                if(_.has(options, "mount_point")){
+                    self.volumes[options.name].create_volume(function(err){
+                        return fn(err, self.volumes[options.name]);
+                    });
+                }
+                else
+                    return fn(null, self.volumes[options.name]);
             }
         });
     }
@@ -49,6 +55,7 @@ CodexD.prototype.get_snapshot = function(host, name, fn){
         this.legiond.leave(event_name);
 
         if(snapshot.checksum == utils.get_checksum(snapshot.data)){
+            delete snapshot.mount_point;
             self.add_volume(snapshot.options, function(err, volume){
                 if(err)
                     return fn(err);
