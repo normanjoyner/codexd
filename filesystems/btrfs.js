@@ -16,9 +16,7 @@ BTRFS.prototype.initialize = function(options, fn){
     this.snapshots_location = [this.snapshot_location, this.name].join("/");
     this.temporary_location = ["", "tmp", "codexd"].join("/");
 
-    fs.mkdir(this.snapshots_location, function(){
-        fs.mkdir(self.volume_location, fn);
-    });
+    fs.mkdir(this.snapshots_location, fn);
 }
 
 BTRFS.prototype.create_volume = function(fn){
