@@ -12,7 +12,7 @@ BTRFS.prototype.initialize = function(options, fn){
     this.options = options;
     this.name = options.name;
     this.mount_point = options.mount_point;
-    this.volume_location = [this.mount_point, this.name, "data"].join("/");
+    this.volume_location = [this.mount_point, this.name].join("/");
     this.snapshots_location = [this.snapshot_location, this.name].join("/");
     this.temporary_location = ["", "tmp", "codexd"].join("/");
 
