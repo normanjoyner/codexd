@@ -1,5 +1,6 @@
 var fs = require("fs");
 var _ = require("lodash");
+var utils = require([__dirname, "lib", "utils"].join("/"));
 
 function CodexD(legiond){
     var self = this;
@@ -32,7 +33,12 @@ CodexD.prototype.add_volume = function(options, fn){
                 self.legiond.join(event_name);
 
                 self.legiond.on(event_name, function(host){
-                    self.volumes[options.name].send_snapshot(host);
+                    self.volumes[options.name].create_snapshot(function(err){
+                        if(err)
+                            return fn(err);
+                        else
+                            self.volumes[options.name].send_snapshot(host);
+                    });
                 });
 
                 if(_.has(options, "mount_point")){
@@ -48,11 +54,13 @@ CodexD.prototype.add_volume = function(options, fn){
 }
 
 CodexD.prototype.get_snapshot = function(host, name, fn){
+    var self = this;
+
     var event_name = ["codexd", "receive_snapshot", name].join(".");
     this.legiond.join(event_name);
 
     this.legiond.on(event_name, function(snapshot){
-        this.legiond.leave(event_name);
+        self.legiond.leave(event_name);
 
         if(snapshot.checksum == utils.get_checksum(snapshot.data)){
             delete snapshot.mount_point;

@@ -1,6 +1,7 @@
 var child_process = require("child_process");
 var fs = require("fs");
 var _ = require("lodash");
+var utils = require([__dirname, "..", "lib", "utils"].join("/"));
 
 function BTRFS(legiond){
     this.legiond = legiond;
@@ -49,7 +50,7 @@ BTRFS.prototype.create_snapshot = function(fn){
 }
 
 BTRFS.prototype.restore_snapshot = function(temporary_location, fn){
-    child_process.exec(["btrfs receive -f", temporary_location, this.volume_location].join(" "), function(err, stdout, stderr){
+    child_process.exec(["btrfs receive -f", temporary_location, this.mount_point].join(" "), function(err, stdout, stderr){
         return fn(err);
     });
 }
