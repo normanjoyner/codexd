@@ -76,7 +76,6 @@ CodexD.prototype.get_snapshot = function(host, name, fn){
             return fn(new Error("Snapshot checksum mismatch!"));
     });
 
-
     this.legiond.send(["codexd", "request_snapshot", name].join("."), this.legiond.get_attributes(), host);
 }
 
