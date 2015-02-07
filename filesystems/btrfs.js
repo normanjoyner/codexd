@@ -1,6 +1,5 @@
 var child_process = require("child_process");
 var fs = require("fs");
-var mkdirp = require("mkdirp");
 var _ = require("lodash");
 
 function BTRFS(legiond){
@@ -17,11 +16,15 @@ BTRFS.prototype.initialize = function(options, fn){
     this.snapshots_location = [this.snapshot_location, this.name].join("/");
     this.temporary_location = ["", "tmp", "codexd"].join("/");
 
-    mkdirp(this.snapshots_location, fn);
+    fs.mkdir(this.snapshots_location, function(){
+        fs.mkdir(this.volume_location, fn);
+    });
 }
 
 BTRFS.prototype.create_volume = function(fn){
-    fs.exists(self.volume_location, function(exists){
+    var self = this;
+
+    fs.exists(this.volume_location, function(exists){
         if(!exists){
             child_process.exec(["btrfs subvolume create", self.volume_location].join(" "), function(err, stdout, stderr){
                 return fn(err);
