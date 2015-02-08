@@ -17,7 +17,9 @@ BTRFS.prototype.initialize = function(options, fn){
     this.volume_location = [this.mount_point, this.name].join("/");
     this.temporary_location = ["", "tmp", "codexd"].join("/");
 
-    fs.mkdir(this.snapshot_location, fn);
+    fs.mkdir(this.snapshot_location, function(){
+        return fn();
+    });
 }
 
 BTRFS.prototype.create_volume = function(fn){
@@ -38,14 +40,16 @@ BTRFS.prototype.create_volume = function(fn){
 BTRFS.prototype.create_snapshot = function(fn){
     var self = this;
 
-    child_process.exec(["btrfs subvolume snapshot -r", this.volume_location, this.snapshot_location].join(" "), function(err, stdout, stderr){
-        if(err)
-            return fn(err);
-        else{
-            child_process.exec(["btrfs send -f", self.temporary_location, [self.snapshot_location, self.name].join("/")].join(" "), function(err, stdout, stderr){
+    child_process.exec(["btrfs subvolume delete", [this.snapshot_location, this.name].join("/")].join(" "), function(err, stdout, stderr){
+        child_process.exec(["btrfs subvolume snapshot -r", this.volume_location, this.snapshot_location].join(" "), function(err, stdout, stderr){
+            if(err)
                 return fn(err);
-            });
-        }
+            else{
+                child_process.exec(["btrfs send -f", self.temporary_location, [self.snapshot_location, self.name].join("/")].join(" "), function(err, stdout, stderr){
+                    return fn(err);
+                });
+            }
+        });
     });
 }
 
