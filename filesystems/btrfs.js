@@ -41,7 +41,7 @@ BTRFS.prototype.create_snapshot = function(fn){
     var self = this;
 
     child_process.exec(["btrfs subvolume delete", [this.snapshot_location, this.name].join("/")].join(" "), function(err, stdout, stderr){
-        child_process.exec(["btrfs subvolume snapshot -r", this.volume_location, this.snapshot_location].join(" "), function(err, stdout, stderr){
+        child_process.exec(["btrfs subvolume snapshot -r", self.volume_location, self.snapshot_location].join(" "), function(err, stdout, stderr){
             if(err)
                 return fn(err);
             else{
@@ -54,8 +54,12 @@ BTRFS.prototype.create_snapshot = function(fn){
 }
 
 BTRFS.prototype.restore_snapshot = function(temporary_location, fn){
-    child_process.exec(["btrfs receive -f", temporary_location, this.mount_point].join(" "), function(err, stdout, stderr){
-        return fn(err);
+    var self = this;
+
+    child_process.exec(["btrfs subvolume delete", this.volume_location].join(" "), function(err, stdout, stderr){
+        child_process.exec(["btrfs receive -f", temporary_location, self.mount_point].join(" "), function(err, stdout, stderr){
+            return fn(err);
+        });
     });
 }
 
