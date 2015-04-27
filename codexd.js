@@ -81,7 +81,7 @@ CodexD.prototype.get_snapshot = function(host, name, fn){
         });
     });
 
-    this.legiond.send(["codexd", "request_snapshot", name].join("."), {), host);
+    this.legiond.send(["codexd", "request_snapshot", name].join("."), {}, host);
 }
 
 CodexD.prototype.remove_volume = function(name){
