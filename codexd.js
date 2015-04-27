@@ -1,6 +1,5 @@
 var fs = require("fs");
 var _ = require("lodash");
-var utils = require([__dirname, "lib", "utils"].join("/"));
 
 function CodexD(legiond){
     var self = this;
@@ -32,12 +31,12 @@ CodexD.prototype.add_volume = function(options, fn){
                 var event_name = ["codexd", "request_snapshot", options.name].join(".");
                 self.legiond.join(event_name);
 
-                self.legiond.on(event_name, function(host){
+                self.legiond.on(event_name, function(json){
                     self.volumes[options.name].create_snapshot(function(err){
                         if(err)
                             return fn(err);
                         else
-                            self.volumes[options.name].send_snapshot(host);
+                            self.volumes[options.name].send_snapshot(json.author);
                     });
                 });
 
@@ -59,32 +58,30 @@ CodexD.prototype.get_snapshot = function(host, name, fn){
     var event_name = ["codexd", "receive_snapshot", name].join(".");
     this.legiond.join(event_name);
 
-    this.legiond.on(event_name, function(snapshot){
+    this.legiond.on(event_name, function(json){
         self.legiond.leave(event_name);
+        self.add_volume(json.data.options, function(err, volume){
+            if(err)
+                return fn(err);
+            else{
+                var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
+                var snapshot_stream = fs.createWriteStream(temporary_location);
 
-        if(snapshot.checksum == utils.get_checksum(snapshot.data)){
-            delete snapshot.mount_point;
-            self.add_volume(snapshot.options, function(err, volume){
-                if(err)
-                    return fn(err);
-                else{
-                    var temporary_location = ["", "tmp", new Date().valueOf()].join("/");
-                    fs.writeFile(temporary_location, new Buffer(snapshot.data), "binary", function(err){
-                        volume.restore_snapshot(temporary_location, function(err){
-                            if(err)
-                                return fn(err);
-                            else
-                                return fn();
-                        });
+                json.stream.pipe(snapshot_stream);
+
+                snapshot_stream.on("finish", function(){
+                    volume.restore_snapshot(temporary_location, function(err){
+                        if(err)
+                            return fn(err);
+                        else
+                            return fn();
                     });
-                }
-            });
-        }
-        else
-            return fn(new Error("Snapshot checksum mismatch!"));
+                });
+            }
+        });
     });
 
-    this.legiond.send(["codexd", "request_snapshot", name].join("."), this.legiond.get_attributes(), host);
+    this.legiond.send(["codexd", "request_snapshot", name].join("."), {), host);
 }
 
 CodexD.prototype.remove_volume = function(name){

@@ -1,6 +1,7 @@
 var child_process = require("child_process");
 var fs = require("fs");
 var _ = require("lodash");
+var btrfs = require("btrfs");
 var utils = require([__dirname, "..", "lib", "utils"].join("/"));
 
 function BTRFS(legiond){
@@ -27,7 +28,7 @@ BTRFS.prototype.create_volume = function(fn){
 
     fs.exists(this.volume_location, function(exists){
         if(!exists){
-            child_process.exec(["btrfs subvolume create", self.volume_location].join(" "), function(err, stdout, stderr){
+            btrfs.create_subvolume(self.volume_location, function(err){
                 return fn(err);
             });
         }
@@ -40,23 +41,21 @@ BTRFS.prototype.create_volume = function(fn){
 BTRFS.prototype.create_snapshot = function(fn){
     var self = this;
 
-    child_process.exec(["btrfs subvolume delete", [this.snapshot_location, this.name].join("/")].join(" "), function(err, stdout, stderr){
-        child_process.exec(["btrfs subvolume snapshot -r", self.volume_location, self.snapshot_location].join(" "), function(err, stdout, stderr){
-            if(err)
+    btrfs.create_snapshot(self.volume_location, self.snapshot_location, { readonly: true }, function(err){
+        if(err)
+            return fn(err);
+        else{
+            child_process.exec(["btrfs send -f", self.temporary_location, [self.snapshot_location, self.name].join("/")].join(" "), function(err, stdout, stderr){
                 return fn(err);
-            else{
-                child_process.exec(["btrfs send -f", self.temporary_location, [self.snapshot_location, self.name].join("/")].join(" "), function(err, stdout, stderr){
-                    return fn(err);
-                });
-            }
-        });
+            });
+        }
     });
 }
 
 BTRFS.prototype.restore_snapshot = function(temporary_location, fn){
     var self = this;
 
-    child_process.exec(["btrfs subvolume delete", this.volume_location].join(" "), function(err, stdout, stderr){
+    btrfs.delete_subvolume(this.volume_location, function(err){
         child_process.exec(["btrfs receive -f", temporary_location, self.mount_point].join(" "), function(err, stdout, stderr){
             return fn(err);
         });
@@ -66,17 +65,12 @@ BTRFS.prototype.restore_snapshot = function(temporary_location, fn){
 BTRFS.prototype.send_snapshot = function(host){
     var self = this;
 
-    fs.readFile(this.temporary_location, function(err, snapshot){
-        if(_.isNull(err)){
-            var data = snapshot.toJSON();
-
-            self.legiond.send(["codexd", "receive_snapshot", self.name].join("."), {
-                options: self.options,
-                checksum: utils.get_checksum(data),
-                data: data
-            }, host);
-        }
-    });
+    var snapshot_stream = fs.createReadStream(this.temporary_location);
+    this.legiond.send(["codexd", "receive_snapshot", this.name].join("."), {
+        options: this.options,
+        checksum: utils.get_checksum(data),
+        stream: snapshot_stream
+    }, host);
 }
 
 module.exports = BTRFS;
