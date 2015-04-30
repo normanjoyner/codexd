@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/growbrosops/codexd.git"
+    "url": "https://github.com/containership/codexd.git"
   },
   "keywords": [
     "codex",
@@ -24,9 +24,9 @@
   "author": "Norman Joyner <norman.joyner@gmail.com>",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/growbrosops/codexd/issues"
+    "url": "https://github.com/containership/codexd/issues"
   },
-  "homepage": "https://github.com/growbrosops/codexd",
+  "homepage": "https://github.com/containership/codexd",
   "dependencies": {
     "lodash": "^3.1.0"
   }
