@@ -1,6 +1,5 @@
 var fs = require("fs");
 var _ = require("lodash");
-var rimraf = require("rimraf");
 var utils = require([__dirname, "lib", "utils"].join("/"));
 var constants = require([__dirname, "lib", "constants"].join("/"));
 var persistence = require([__dirname, "persistence"].join("/"));
@@ -19,8 +18,14 @@ function CodexD(options){
 
     this.options = options;
 
+    this.options.legiond.join(constants.REMOVE_SNAPSHOT);
     this.options.legiond.join(constants.SNAPSHOT);
     this.options.legiond.join(constants.SNAPSHOT_REQUEST);
+
+    this.options.legiond.on(constants.REMOVE_SNAPSHOT, function(message){
+        if(_.has(self.volumes, message.data.id))
+            self.remove_volume(message.data.id, function(){});
+    });
 
     this.options.legiond.on(constants.SNAPSHOT_REQUEST, function(message){
         if(_.has(self.volumes, message.data.id)){
@@ -113,7 +118,7 @@ CodexD.prototype.remove_volume = function(id, fn){
     var self = this;
 
     if(_.has(this.volumes, id)){
-        rimraf([this.options.base_path, id].join("/"), function(err){
+        this.volumes[id].remove(function(err){
             if(err)
                 return fn(err);
 

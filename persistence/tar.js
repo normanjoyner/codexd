@@ -1,5 +1,6 @@
 var fs = require("fs");
 var _ = require("lodash");
+var async = require("async");
 var tar = require("tar-fs");
 var rimraf = require("rimraf");
 var utils = require([__dirname, "..", "lib", "utils"].join("/"));
@@ -81,6 +82,23 @@ Tar.prototype.restore_snapshot = function(options, fn){
 
         stream.pipe(crypto_stream).pipe(tar.extract(volume_location));
     });
+}
+
+Tar.prototype.remove = function(fn){
+    var self = this;
+
+    var volume_location = [this.options.base_path, this.options.id].join("/");
+    var tmp_location = [this.options.tmp_path, this.options.id].join("/");
+
+    async.parallel([
+        function(fn){
+            rimraf(volume_location, fn);
+        },
+
+        function(fn){
+            rimraf(tmp_location, fn);
+        }
+    ], fn);
 }
 
 module.exports = Tar;
