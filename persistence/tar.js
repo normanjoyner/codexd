@@ -11,7 +11,12 @@ function Tar(options){
 }
 
 Tar.prototype.initialize = function(fn){
-    fs.mkdir([this.options.base_path, this.options.id].join("/"), fn);
+    fs.mkdir([this.options.base_path, this.options.id].join("/"), function(err){
+        if(err && err.code != "EEXIST")
+            return fn(err);
+        else
+            return fn();
+    });
 }
 
 Tar.prototype.create_volume = function(fn){
