@@ -62,15 +62,17 @@ Tar.prototype.restore_snapshot = function(options, fn){
         checksum = _checksum;
     });
 
-    rimraf(tmp_location, function(err){
+    rimraf(volume_location, function(err){
         if(err)
             return fn(err);
 
         var stream = fs.createReadStream(tmp_location);
 
-        stream.on("error", function(err){});
+        var extract = tar.extract(volume_location);
 
-        stream.on("finish", function(){
+        extract.on("error", function(err){});
+
+        extract.on("finish", function(){
             if(self.options.verify_checksum && options.checksum != checksum)
                 return fn(new Error("Checksum mismatch!"));
             else
