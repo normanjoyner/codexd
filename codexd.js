@@ -24,7 +24,7 @@ function CodexD(options){
 
     this.options.legiond.on(constants.SNAPSHOT_REQUEST, function(message){
         if(_.has(self.volumes, message.data.id)){
-            self.volumes.create_snapshot(function(err, checksum){
+            self.volumes[message.data.id].create_snapshot(function(err, checksum){
                 if(!err){
                     self.options.legiond.send({
                         event: [constants.SNAPSHOT_PREFIX, message.data.id].join(constants.DELIMITER),
@@ -84,7 +84,7 @@ CodexD.prototype.get_snapshot = function(id, fn){
     });
 
     this.options.legiond.on([constants.SNAPSHOT_PREFIX, id].join(constants.DELIMITER), function(message){
-        this.options.legiond.leave([constants.SNAPSHOT_PREFIX, id].join(constants.DELIMITER));
+        self.options.legiond.leave([constants.SNAPSHOT_PREFIX, id].join(constants.DELIMITER));
 
         var stream = fs.createWriteStream([self.options.tmp_path, message.data.id].join("/"));
 
@@ -98,7 +98,7 @@ CodexD.prototype.get_snapshot = function(id, fn){
                 if(err)
                     return fn(err);
 
-                self.volumes[message.data.id].restore_volume({
+                self.volumes[message.data.id].restore_snapshot({
                     checksum: message.data.checksum
                 }, fn);
             });
