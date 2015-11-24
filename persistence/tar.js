@@ -1,6 +1,7 @@
 var fs = require("fs");
 var _ = require("lodash");
 var tar = require("tar-fs");
+var rimraf = require("rimraf");
 var utils = require([__dirname, "..", "lib", "utils"].join("/"));
 var constants = require([__dirname, "..", "lib", "constants"].join("/"));
 
