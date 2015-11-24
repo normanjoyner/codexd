@@ -80,7 +80,7 @@ Tar.prototype.restore_snapshot = function(options, fn){
                 return fn();
         });
 
-        stream.pipe(crypto_stream).pipe(tar.extract(volume_location));
+        stream.pipe(crypto_stream).pipe(extract);
     });
 }
 
