@@ -1,6 +1,6 @@
 {
   "name": "codexd",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Filesystem snapshotting and replication built atop LegionD",
   "main": "application.js",
   "scripts": {
