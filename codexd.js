@@ -17,6 +17,7 @@ function CodexD(options){
     });
 
     this.options = options;
+    this.constants = constants;
 
     this.options.legiond.join(constants.REMOVE_SNAPSHOT);
     this.options.legiond.join(constants.SNAPSHOT);
