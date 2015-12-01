@@ -13,7 +13,7 @@ function CodexD(options){
         base_path: ["", "mnt", "codexd"].join("/"),
         tmp_path: ["", "tmp", "codexd"].join("/"),
         persistence: "tar",
-        verify_checksum: false
+        verify_checksum: true
     });
 
     this.options = options;
