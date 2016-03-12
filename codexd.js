@@ -39,7 +39,7 @@ function CodexD(options){
                             persistence: self.volumes[message.data.id].type,
                             checksum: checksum
                         },
-                        stream: fs.createReadStream([self.options.tmp_path, message.data.id].join("/"))
+                        stream: fs.createReadStream([self.options.tmp_path, message.data.id].join("/"), { encoding: "base64" })
                     });
                 }
             });
@@ -92,7 +92,7 @@ CodexD.prototype.get_snapshot = function(id, fn){
     this.options.legiond.on([constants.SNAPSHOT_PREFIX, id].join(constants.DELIMITER), function(message){
         self.options.legiond.leave([constants.SNAPSHOT_PREFIX, id].join(constants.DELIMITER));
 
-        var stream = fs.createWriteStream([self.options.tmp_path, message.data.id].join("/"));
+        var stream = fs.createWriteStream([self.options.tmp_path, message.data.id].join("/"), { defaultEncoding: "binary" });
 
         stream.on("error", function(err){});
 
@@ -110,7 +110,13 @@ CodexD.prototype.get_snapshot = function(id, fn){
             });
         });
 
-        message.stream.pipe(stream);
+        message.stream.on("data", function(data){
+            stream.write(new Buffer(data.toString(), "base64").toString("binary"), "binary");
+        });
+
+        message.stream.on("finish", function(){
+            stream.end();
+        });
     });
 }
 
