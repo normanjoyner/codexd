@@ -11,8 +11,8 @@ ContainerShip Developers - developers@containership.io
 ##Getting Started
 
 ###Demos
-[CodexD Demo: Migrating a Redis Database](https://vimeo.com/containership/codexd-demo-migrating-a-redis-database)
-[CodexD Demo: Migrating a Quarry DNS Server](https://vimeo.com/containership/codexd-demo-migrating-a-quarry-dns-server)
+* [CodexD Demo: Migrating a Redis Database](https://vimeo.com/containership/codexd-demo-migrating-a-redis-database)
+* [CodexD Demo: Migrating a Quarry DNS Server](https://vimeo.com/containership/codexd-demo-migrating-a-quarry-dns-server)
 
 ###Installation
 `npm install codexd --save`
