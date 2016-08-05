@@ -10,7 +10,7 @@ function CodexD(options){
     this.volumes = {};
 
     options = _.defaults(options, {
-        base_path: ["", "mnt", "codexd"].join("/"),
+        base_path: ["", "opt", "containership", "codexd"].join("/"),
         tmp_path: ["", "tmp", "codexd"].join("/"),
         persistence: "tar",
         verify_checksum: true
